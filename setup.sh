@@ -35,6 +35,7 @@ sudo mkdir /home/$dockeruser/.ssh;
 sudo cp ~/.ssh/authorized_keys /home/$dockeruser/.ssh/authorized_keys;
 sudo cp ~/.bashrc /home/$dockeruser/;
 sudo cp setup-dockerer.sh /home/$dockeruser/setup.sh
+sudo cp -r tf /home/$dockeruser/
 sudo chown -R $dockeruser:$dockeruser /home/$dockeruser;
 #passwd #change password
 #dockerer password
