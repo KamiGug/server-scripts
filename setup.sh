@@ -1,4 +1,13 @@
-dockeruser="docku"
+dockeruser="dockerer"
+password="powerpass"
+while getopts u:p: flag
+do
+	case "${flag}" in
+		u) dockeruser=${OPTARG};;
+		p) password=${OPTARG};;
+	esac
+done
+
 sudo apt update && sudo apt -y upgrade;
 sudo apt-get install ca-certificates curl;
 sudo install -m 0755 -d /etc/apt/keyrings;
@@ -12,7 +21,7 @@ sudo apt-get update;
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-ce-rootless-extras;
 sudo apt install uidmap;
 sudo useradd $dockeruser;
-echo '$dockeruser:powerpasswd' | sudo chpasswd
+echo '$dockeruser:$password' | sudo chpasswd
 sudo usermod -a -G docker $dockeruser;
 sudo usermod -s /bin/bash $dockeruser;
 sudo loginctl enable-linger $dockeruser;
