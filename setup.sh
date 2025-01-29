@@ -44,4 +44,5 @@ sudo chown -R $dockeruser:$dockeruser /home/$dockeruser;
 #sudo nano /etc/ssh/sshd_config
 
 #sshd config - no password allowed -> only key
-sudo su $dockeruser;
+echo "now ssh to the $dockeruser using the key used to ssh into $USER@$(hostname) and run the setup.sh";
+#sudo su $dockeruser;
