@@ -1,3 +1,4 @@
+dockeruser="docku"
 sudo apt update && sudo apt -y upgrade;
 sudo apt-get install ca-certificates curl;
 sudo install -m 0755 -d /etc/apt/keyrings;
@@ -10,21 +11,22 @@ echo \
 sudo apt-get update;
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-ce-rootless-extras;
 sudo apt install uidmap;
-sudo useradd dockerer;
-echo 'dockerer:powerpasswd' | sudo chpasswd
-sudo usermod -a -G docker dockerer;
-sudo usermod -s /bin/bash dockerer;
-sudo loginctl enable-linger dockerer;
+sudo useradd $dockeruser;
+echo '$dockeruser:powerpasswd' | sudo chpasswd
+sudo usermod -a -G docker $dockeruser;
+sudo usermod -s /bin/bash $dockeruser;
+sudo loginctl enable-linger $dockeruser;
 
 sudo systemctl disable --now docker.service docker.socket
 sudo systemctl stop --now docker.service docker.socket
 sudo rm /var/run/docker.sock
 
-sudo mkdir ~dockerer;
-sudo mkdir ~dockerer/.ssh;
-sudo cp ~/.ssh/authorized_keys ~dockerer/.ssh/authorized_keys;
-sudo cp ~/.bashrc ~dockerer/;
-sudo chown -R dockerer:dockerer ~dockerer;
+sudo mkdir /home/$dockeruser;
+sudo mkdir /home/$dockeruser/.ssh;
+sudo cp ~/.ssh/authorized_keys /home/$dockeruser/.ssh/authorized_keys;
+sudo cp ~/.bashrc /home/$dockeruser/;
+sudo cp setup-dockerer.sh /home/$dockeruser/setup.sh
+sudo chown -R $dockeruser:$dockeruser /home/$dockeruser;
 #passwd #change password
 #dockerer password
 #powerpasswd
@@ -33,4 +35,4 @@ sudo chown -R dockerer:dockerer ~dockerer;
 #sudo nano /etc/ssh/sshd_config
 
 #sshd config - no password allowed -> only key
-su dockerer;
+sudo su $dockeruser;
