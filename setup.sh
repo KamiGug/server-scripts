@@ -32,7 +32,10 @@ sudo rm /var/run/docker.sock
 
 ssh-keygen -f setup-$dockeruser -P "" -q
 sudo mkdir -p /home/$dockeruser/.ssh
+cat setup-$dockeruser.pub | sudo tee /home/$dockeruser/.ssh/authorized_keys
 sudo cp setup-$dockeruser.pub /home/$dockeruser/.ssh/
+mv setup-$dockeruser ~/.ssh
+rm setup-$dockeruser.pub
 # sudo mkdir /home/$dockeruser;
 # sudo mkdir /home/$dockeruser/.ssh;
 # sudo cp ~/.ssh/authorized_keys /home/$dockeruser/.ssh/authorized_keys;
@@ -50,5 +53,8 @@ sudo cp -r tf /home/$dockeruser/
 sudo chown -R $dockeruser:$dockeruser /home/$dockeruser;
 
 ssh $dockeruser@localhost -i ~/.ssh/setup-$dockeruser 'chmod 700 ~/setup.sh; ~/setup.sh; rm ~/setup.sh;'
+rm ~/.ssh/setup-$dockeruser
+sudo rm /home/$dockeruser/.ssh/authorized_keys
+
 # echo "now ssh to the $dockeruser using the key used to ssh into $USER@$(hostname) and run the setup.sh";
 #sudo su $dockeruser;
