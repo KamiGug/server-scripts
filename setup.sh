@@ -30,13 +30,15 @@ sudo systemctl disable --now docker.service docker.socket
 sudo systemctl stop --now docker.service docker.socket
 sudo rm /var/run/docker.sock
 
-sudo mkdir /home/$dockeruser;
-sudo mkdir /home/$dockeruser/.ssh;
-sudo cp ~/.ssh/authorized_keys /home/$dockeruser/.ssh/authorized_keys;
+ssh-keygen -f setup-$dockeruser -P "" -q
+sudo mkdir -p /home/$dockeruser/.ssh
+sudo cp setup-$dockeruser.pub /home/$dockeruser/.ssh/
+# sudo mkdir /home/$dockeruser;
+# sudo mkdir /home/$dockeruser/.ssh;
+# sudo cp ~/.ssh/authorized_keys /home/$dockeruser/.ssh/authorized_keys;
 sudo cp ~/.bashrc /home/$dockeruser/;
 sudo cp setup-dockerer.sh /home/$dockeruser/setup.sh
 sudo cp -r tf /home/$dockeruser/
-sudo chown -R $dockeruser:$dockeruser /home/$dockeruser;
 #passwd #change password
 #dockerer password
 #powerpasswd
@@ -45,5 +47,8 @@ sudo chown -R $dockeruser:$dockeruser /home/$dockeruser;
 #sudo nano /etc/ssh/sshd_config
 
 #sshd config - no password allowed -> only key
-echo "now ssh to the $dockeruser using the key used to ssh into $USER@$(hostname) and run the setup.sh";
+sudo chown -R $dockeruser:$dockeruser /home/$dockeruser;
+
+ssh $dockeruser@localhost -i ~/.ssh/setup-$dockeruser 'chmod 700 ~/setup.sh; ~/setup.sh; rm ~/setup.sh;'
+# echo "now ssh to the $dockeruser using the key used to ssh into $USER@$(hostname) and run the setup.sh";
 #sudo su $dockeruser;
