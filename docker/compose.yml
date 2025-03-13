@@ -1,0 +1,11 @@
+ networks:
+  test-bridge:
+    external: true
+ 
+ include: 
+  - fileshare/compose.yml
+  - git/compose.yml
+  - kanban/compose.yml
+  - ldap/compose.yml
+  - proxy/compose.yml
+#  - mta/compose.yml

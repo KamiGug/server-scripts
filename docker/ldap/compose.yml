@@ -1,0 +1,72 @@
+networks:
+  test-bridge:
+    external: true
+  ldap-network:
+    driver: bridge
+
+services:
+  ldap:
+    image: lldap/lldap:stable
+    container_name: ldap
+    depends_on:
+      - ldap_db
+    networks:
+      - test-bridge
+      - ldap-network
+    # ports:
+      # For LDAP, not recommended to expose, see Usage section.
+      #- "3890:3890"
+      # For LDAPS (LDAP Over SSL), enable port if LLDAP_LDAPS_OPTIONS__ENABLED set true, look env below
+      #- "6360:6360"
+      # For the web front-end
+      # - "17170:17170"
+    volumes:
+      - type: bind
+        source: ~/volumes/ldap/data
+        target: /var/lib/openldap/openldap-data
+
+      # - "lldap_data:/data"
+      # Alternatively, you can mount a local folder
+      # - "./lldap_data:/data"
+    environment:
+      - UID=1000
+      - GID=1000
+      # - TZ=####/#### 
+      - LLDAP_JWT_SECRET=${JWT_SECRET}
+      - LLDAP_KEY_SEED=${KEY_SEED}
+      - LLDAP_LDAP_BASE_DN=${LDAP_DOMAIN}
+      - LLDAP_LDAP_USER_PASS=${LDAP_PASS}
+      # If using LDAPS, set enabled true and configure cert and key path
+      # - LLDAP_LDAPS_OPTIONS__ENABLED=true
+      # - LLDAP_LDAPS_OPTIONS__CERT_FILE=/path/to/certfile.crt
+      # - LLDAP_LDAPS_OPTIONS__KEY_FILE=/path/to/keyfile.key
+      # You can also set a different database:
+      - LLDAP_DATABASE_URL=mysql://ldapper:${LDAP_USER_DB}@ldap_db/ldap
+      # - LLDAP_DATABASE_URL=postgres://postgres-user:password@postgres-server/my-database
+      # If using SMTP, set the following variables
+      # - LLDAP_SMTP_OPTIONS__ENABLE_PASSWORD_RESET=true
+      # - LLDAP_SMTP_OPTIONS__SERVER=smtp.example.com
+      # - LLDAP_SMTP_OPTIONS__PORT=465 # Check your smtp providor's documentation for this setting
+      # - LLDAP_SMTP_OPTIONS__SMTP_ENCRYPTION=TLS # How the connection is encrypted, either "NONE" (no encryption, port 25), "TLS" (sometimes called SSL, port 465) or "STARTTLS" (sometimes called TLS, port 587).
+      # - LLDAP_SMTP_OPTIONS__USER=no-reply@example.com # The SMTP user, usually your email address
+      # - LLDAP_SMTP_OPTIONS__PASSWORD=PasswordGoesHere # The SMTP password
+      # - LLDAP_SMTP_OPTIONS__FROM=no-reply <no-reply@example.com> # The header field, optional: how the sender appears in the email. The first is a free-form name, followed by an email between <>.
+      # - LLDAP_SMTP_OPTIONS__TO=admin <admin@example.com> # Same for reply-to, optional.
+
+  ldap_db:
+    networks:
+      - ldap-network
+    image: mariadb:11
+    container_name: ldap_db
+    restart: always
+#    ports:
+#      - "22137:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${LDAP_ROOT_DB}
+      - MYSQL_USER=ldapper
+      - MYSQL_PASSWORD=${LDAP_USER_DB}
+      - MYSQL_DATABASE=ldap
+    volumes:
+      - type: bind
+        source: ~/volumes/ldap/db
+        target: /var/lib/mysql

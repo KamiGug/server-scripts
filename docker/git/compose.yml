@@ -1,0 +1,65 @@
+# build forgejo 
+# https://codeberg.org/forgejo/-/packages/container/forgejo/10.0.1
+
+networks:
+  test-bridge:
+    external: true
+  git-network:
+    driver: bridge
+
+services:
+  git:
+    networks:
+      - test-bridge
+      - git-network
+    container_name: git
+    image: codeberg.org/forgejo/forgejo:10-rootless
+    environment:
+      - USER_UID=${USER_UID}
+      - USER_GID=${USER_GID}
+      # - FORGEJO__server__SSH_DOMAIN=22
+      - FORGEJO__server__SSH_DOMAIN=${GIT_HOST}.${DOMAIN}
+      - FORGEJO__server__ROOT_URL=${PROTOCOL}://${GIT_HOST}.${DOMAIN}
+      - APP__NAME=Ananas Project Git #no workerino
+      - GITEA__SLOGAN=DUPA #no workerino
+      - FORGEJO__database__DB_TYPE=mysql
+      - FORGEJO__database__HOST=git_db:3306
+      - FORGEJO__database__NAME=git
+      - FORGEJO__database__USER=gitter
+      - FORGEJO__database__PASSWD=${GIT_USER_DB}
+      - LDAP_DOMAIN=ldap://ldap
+      - LDAP_BIND_DN=${LDAP_DOMAIN}
+      - LDAP_PASS=${LDAP_PASS}
+    volumes:
+      - type: bind
+        source: ~/volumes/git/data
+        target: /data
+      - type: bind
+        source: ~/volumes/git/data
+        target: /var/lib/gitea
+
+      # - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      # - "3000:3000"
+      - "22222:2222" #ssh port
+    depends_on:
+      - git_db
+
+  git_db:
+    networks:
+      - git-network
+    image: mariadb:11
+    container_name: git_db
+    restart: always
+    # ports:
+    #   - "10000:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${GIT_ROOT_DB}
+      - MYSQL_USER=gitter
+      - MYSQL_PASSWORD=${GIT_USER_DB}
+      - MYSQL_DATABASE=git
+    volumes:
+      - type: bind
+        source: ~/volumes/git/db
+        target: /var/lib/mysql

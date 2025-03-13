@@ -1,0 +1,19 @@
+FROM nextcloud:31
+ARG LDAP_DOMAIN
+ENV LDAP_DOMAIN=${LDAP_DOMAIN}
+
+ARG LDAP_PASS
+ENV LDAP_PASS=${LDAP_PASS}
+
+#
+# COPY initial-hooks/before-starting /docker-entrypoint-hooks.d/before-starting
+COPY initial-hooks/post-installation/ldap.sh /docker-entrypoint-hooks.d/post-installation/ldap.sh
+# COPY initial-hooks/post-upgrade /docker-entrypoint-hooks.d/post-upgrade
+# COPY initial-hooks/pre-installation /docker-entrypoint-hooks.d/pre-installation
+# COPY initial-hooks/pre-upgrade /docker-entrypoint-hooks.d/pre-upgrade
+RUN (apt-get update) && \
+    (apt-get upgrade -y) && \
+    (apt-get install -y sudo) && \
+    (apt-get install -y gettext) && \
+    (envsubst < /docker-entrypoint-hooks.d/post-installation/ldap.sh > /docker-entrypoint-hooks.d/post-installation/ldap.sh) && \
+    (chmod -R 755 /docker-entrypoint-hooks.d/); 
