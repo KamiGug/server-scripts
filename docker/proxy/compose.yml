@@ -18,12 +18,11 @@ services:
         target: /var/www/certbot
     networks:
       - test-bridge
-      - certbot
 
   certbot:
     image: certbot/certbot
     container_name: certbot
-    depends on:
+    depends_on:
       - proxy
     volumes:
       - type: bind
