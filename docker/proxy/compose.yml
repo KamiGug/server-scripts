@@ -18,22 +18,33 @@ services:
         target: /var/www/certbot
     networks:
       - test-bridge
-  #     - certbot
-  #
-  # certbot:
-  #   image: certbot/certbot
-  #   container_name: certbot
-  #   volumes:
-  #     - type: bind
-  #       source: ~/volumes/proxy/certbot/letsencrypt
-  #       target: /etc/letsencrypt
-  #     - type: bind
-  #       source: ~/volumes/proxy/certbot/www
-  #       target: /var/www/certbot
-      # - type: bind
-      #   source: ~/volumes/proxy/certbot/logs
-      #   target: /var/log/letsencrypt
-  #   entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done'"
+      - certbot
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    depends on:
+      - proxy
+    volumes:
+      - type: bind
+        source: ~/volumes/proxy/certbot/letsencrypt
+        target: /etc/letsencrypt
+      - type: bind
+        source: ~/volumes/proxy/certbot/www
+        target: /var/www/certbot
+      - type: bind
+        source: ~/volumes/proxy/certbot/logs
+        target: /var/log/letsencrypt
+    # entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done'"
+    command: >
+      certonly --webroot --webroot-path=/var/www/cerbot 
+        --email gug.kamil@gmail.com 
+        --agree-tos --no-eff-email 
+        --staging 
+        -d kanban.ananas-project.dns-dynamic.net 
+        -d ldap.ananas-project.dns-dynamic.net
+        -d git.ananas-project.dns-dynamic.net
+        -d file.ananas-project.dns-dynamic.net
 
 networks:
   test-bridge:
