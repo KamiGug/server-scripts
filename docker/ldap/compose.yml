@@ -29,8 +29,8 @@ services:
       # Alternatively, you can mount a local folder
       # - "./lldap_data:/data"
     environment:
-      - UID=1000
-      - GID=1000
+      - UID=${USER_UID}
+      - GID=${USER_GID}
       # - TZ=####/#### 
       - LLDAP_JWT_SECRET=${JWT_SECRET}
       - LLDAP_KEY_SEED=${KEY_SEED}
