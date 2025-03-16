@@ -1,0 +1,55 @@
+# worker_processes 4;
+
+# events {
+#    worker_connections 1024;
+# }
+
+
+#http {
+    include mime.types;
+
+    server {
+        listen 80;
+        server_name kanban.ananas-project.dns-dynamic.net;
+        location / {
+            proxy_pass http://kanban:8080; 
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+    }
+
+    server {
+        listen 80;
+        server_name file.ananas-project.dns-dynamic.net;
+        location / {
+            proxy_pass http://kanban:8080; 
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+    }
+
+    server {
+       listen 80;
+        server_name git.ananas-project.dns-dynamic.net ;
+        location / {
+            proxy_pass http://git:3000; 
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+    }
+
+    server {
+        listen 80;
+        server_name ldap.ananas-project.dns-dynamic.net ;
+        location / {
+            proxy_pass http://ldap:17170; 
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+    }
+
+#}
