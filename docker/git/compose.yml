@@ -13,7 +13,7 @@ services:
       - test-bridge
       - git-network
     container_name: git
-    image: codeberg.org/forgejo/forgejo:10-rootless
+    image: codeberg.org/forgejo/forgejo:10
     environment:
       - USER_UID=${USER_UID}
       - USER_GID=${USER_GID}
