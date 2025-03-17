@@ -29,14 +29,14 @@ services:
         source: ~/volumes/proxy/certbot/letsencrypt
         target: /etc/letsencrypt
       - type: bind
-        source: ~/volumes/proxy/certbot/www
-        target: /var/www/certbot
+        source: ~/volumes/proxy/certbot/challenges
+        target: /var/www/html/
       - type: bind
         source: ~/volumes/proxy/certbot/logs
         target: /var/log/letsencrypt
     # entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done'"
     command: >
-      certonly --webroot --webroot-path=/var/www/cerbot 
+      certonly --webroot --webroot-path=/var/www/html 
         --email gug.kamil@gmail.com 
         --agree-tos --no-eff-email 
         --staging 
