@@ -66,7 +66,7 @@ main() {
 		-v "$challengePath":/var/www/html \
 		-v "$letsencryptPath":/etc/letsencrypt \
 		certbot/certbot \
-		"'/bin/sh -c '\$(certbot certonly --webroot --webroot-path=/var/www/html --email $email --agree-tos --no-eff-email $environment -d $url; cat /var/log/letsencrypt/letsencrypt.log)''"
+		-c "'/bin/sh -c 'certbot certonly --webroot --webroot-path=/var/www/html --email $email --agree-tos --no-eff-email $environment -d $url; cat /var/log/letsencrypt/letsencrypt.log''"
 }
 
 main "$@"
