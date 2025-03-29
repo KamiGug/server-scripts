@@ -62,12 +62,11 @@ main() {
 		exit 101
 	fi
 
-	$debug docker run --rm \
+	$debug docker run --entrypoint=/bin/sh --rm \
 		-v "$challengePath":/var/www/html \
 		-v "$letsencryptPath":/etc/letsencrypt \
 		certbot/certbot \
-		"certbot certonly --webroot --webroot-path=/var/www/html \
-		--email $email --agree-tos --no-eff-email $environment -d $url;"
+		"certbot certonly --webroot --webroot-path=/var/www/html --email $email --agree-tos --no-eff-email $environment -d $url; cat /var/log/letsencrypt/letsencrypt.log"
 }
 
 main "$@"
