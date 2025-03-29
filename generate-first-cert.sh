@@ -2,13 +2,11 @@ challengePath="$HOME/volumes/proxy/certbot/challenges/"
 letsencryptPath="$HOME/volumes/proxy/certbot/letsencrypt/"
 environment='--staging'
 email='test@test.test'
-proxyType='--nginx'
 url=''
 debug=''
 
 handle_help() {
 	echo 'use -h to view help (like this :D )'
-	echo 'use -a if you use apache'
 	echo 'use -p to set the environment to production'
 	echo 'use -s to set the service url'
 	echo 'use -e to set the email address'
@@ -24,9 +22,6 @@ main() {
 		h)
 			handle_help
 			exit 0
-			;;
-		a)
-			proxyType='--apache'
 			;;
 		c)
 			challengePath=$OPTARG
@@ -71,9 +66,8 @@ main() {
 		-v "$challengePath":/var/www/html \
 		-v "$letsencryptPath":/etc/letsencrypt \
 		certbot/certbot \
-		"certonly $proxyType --agree-tos --no-eff-email --webroot \
-		--webroot-path=/var/www/html --email $email $environment -d $url; \
-		cat /var/log/letsencrypt/letsencrypt.log"
+		"certbot certonly --webroot --webroot-path=/var/www/html \
+		--email $email --agree-tos --no-eff-email $environment -d $url;"
 }
 
 main "$@"
