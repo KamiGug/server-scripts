@@ -60,7 +60,7 @@ main() {
 	$debug docker run --entrypoint=/bin/sh --rm \
 		-v "$challengePath":/var/www/html \
 		-v "$letsencryptPath":/etc/letsencrypt \
-		certbot \
+		certbot/certbot \
 		-c "/bin/sh -c 'certbot renew webroot \
 		--webroot-path=/var/www/html $environment $dryRun $url; \
 		cat /var/log/letsencrypt/letsencrypt.log'"
