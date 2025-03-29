@@ -4,6 +4,7 @@ environment='--staging'
 email='test@test.test'
 proxyType='--nginx'
 url=''
+debug=''
 
 handle_help() {
 	echo 'use -h to view help (like this :D )'
@@ -13,11 +14,12 @@ handle_help() {
 	echo 'use -e to set the email address'
 	echo 'use -c to set path to acme challenges'
 	echo 'use -l to set path to /etc/letsencrypt of the proxy'
+	echo 'use -d to enter debug (echo the last commands)'
 	echo 'remember to set /.well-known/acme-challenge (over http) for the service'
 }
 
 main() {
-	while getopts "hac:l:ps:e:" flag; do
+	while getopts "hac:l:ps:e:d" flag; do
 		case $flag in
 		h)
 			handle_help
@@ -41,6 +43,9 @@ main() {
 		e)
 			email=$OPTARG
 			;;
+		d)
+			debug="echo "
+			;;
 		?)
 			echo "flag -$OPTARG is not implemented" >>/dev/stderr
 			handle_help
@@ -62,7 +67,7 @@ main() {
 		exit 101
 	fi
 
-	echo docker run \
+	$debug docker run \
 		-v "$challengePath":/var/www/html \
 		-v "$letsencryptPath":/etc/letsencrypt \
 		certbot \

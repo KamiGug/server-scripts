@@ -11,11 +11,12 @@ handle_help() {
 	echo 'use -s to set the service CERTIFICATE name (not setting it results in renewing all certs)'
 	echo 'use -c to set path to acme challenges'
 	echo 'use -l to set path to /etc/letsencrypt of the proxy'
+	echo 'use -d to enter debug (echo the last commands)'
 	echo 'remember to set /.well-known/acme-challenge (over http) for the service'
 }
 
 main() {
-	while getopts "hac:l:prs:" flag; do
+	while getopts "hac:l:prs:d" flag; do
 		case $flag in
 		h)
 			handle_help
@@ -36,6 +37,9 @@ main() {
 		s)
 			url="--cert-name $OPTARG"
 			;;
+		d)
+			debug="echo "
+			;;
 		?)
 			echo "flag -$OPTARG is not implemented" >>/dev/stderr
 			handle_help
@@ -53,7 +57,7 @@ main() {
 		exit 101
 	fi
 
-	echo docker run \
+	$debug docker run \
 		-v "$challengePath":/var/www/html \
 		-v "$letsencryptPath":/etc/letsencrypt \
 		certbot \
