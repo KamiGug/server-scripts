@@ -67,12 +67,13 @@ main() {
 		exit 101
 	fi
 
-	$debug docker run \
+	$debug docker run --rm \
 		-v "$challengePath":/var/www/html \
 		-v "$letsencryptPath":/etc/letsencrypt \
-		certbot \
+		certbot/certbot \
 		"certonly $proxyType --agree-tos --no-eff-email --webroot \
-		--webroot-path=/var/www/html --email $email $environment -d $url;"
+		--webroot-path=/var/www/html --email $email $environment -d $url; \
+		cat /var/log/letsencrypt/letsencrypt.log"
 }
 
 main "$@"

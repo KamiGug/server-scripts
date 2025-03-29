@@ -57,12 +57,13 @@ main() {
 		exit 101
 	fi
 
-	$debug docker run \
+	$debug docker run --rm \
 		-v "$challengePath":/var/www/html \
 		-v "$letsencryptPath":/etc/letsencrypt \
 		certbot \
 		"certbot renew webroot \
-		--webroot-path=/var/www/html $environment $dryRun $url"
+		--webroot-path=/var/www/html $environment $dryRun $url; \
+		cat /var/log/letsencrypt/letsencrypt.log"
 }
 
 main "$@"
