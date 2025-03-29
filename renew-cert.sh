@@ -1,7 +1,7 @@
 challengePath="$HOME/volumes/proxy/certbot/challenges/"
 letsencryptPath="$HOME/volumes/proxy/certbot/letsencrypt/"
 environment='--staging'
-dryRun='--dryRun'
+dryRun='--dry-run'
 url=''
 
 handle_help() {
@@ -61,7 +61,7 @@ main() {
 		-v "$challengePath":/var/www/html \
 		-v "$letsencryptPath":/etc/letsencrypt \
 		certbot/certbot \
-		-c "/bin/sh -c 'certbot renew webroot \
+		-c "/bin/sh -c 'certbot renew --webroot \
 		--webroot-path=/var/www/html $environment $dryRun $url; \
 		cat /var/log/letsencrypt/letsencrypt.log'"
 }
