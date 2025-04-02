@@ -44,7 +44,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
     ports:
       # - "3000:3000"
-      - "22222:2222" #ssh port
+      - "22222:22" #ssh port
     depends_on:
       - git_db
 
