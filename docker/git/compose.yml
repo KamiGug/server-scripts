@@ -20,13 +20,15 @@ services:
       # - FORGEJO__server__SSH_DOMAIN=22
       - FORGEJO__server__SSH_DOMAIN=${GIT_HOST}.${DOMAIN}
       - FORGEJO__server__ROOT_URL=${PROTOCOL}://${GIT_HOST}.${DOMAIN}
-      - APP__NAME=Ananas Project Git #no workerino
-      - GITEA__SLOGAN=DUPA #no workerino
       - FORGEJO__database__DB_TYPE=mysql
       - FORGEJO__database__HOST=git_db:3306
       - FORGEJO__database__NAME=git
       - FORGEJO__database__USER=gitter
       - FORGEJO__database__PASSWD=${GIT_USER_DB}
+      - FORGEJO__service__DEFAULT_USER_VISIBILITY=limited
+      - FORGEJO__service__ALLOWED_USER_VISIBILITY_MODES=limited
+      - FORGEJO__service__DEFAULT_ORG_VISIBILITY=limited
+      - FORGEJO__service__DEFAULT_ORG_MEMBER_VISIBLE=true
       - LDAP_DOMAIN=ldap://ldap
       - LDAP_BIND_DN=${LDAP_DOMAIN}
       - LDAP_PASS=${LDAP_PASS}
