@@ -1,193 +1,200 @@
-x-environment:
-  &default-back-environment
-  # These environment variables will be used by taiga-back and taiga-async.
-  # Database settings
-  POSTGRES_DB: "kanban"
-  POSTGRES_USER: "kabaner"
-  POSTGRES_PASSWORD: "${KANBAN_USER_DB}"
-  POSTGRES_HOST: "taiga-db"
-  # Taiga settings
-  TAIGA_SECRET_KEY: "${KANBAN_SECRET_KEY}"
-  TAIGA_SITES_SCHEME: "${PROTOCOL}"
-  TAIGA_SITES_DOMAIN: "${KANBAN_HOST}.${DOMAIN}"
-  TAIGA_SUBPATH: ""
-  # Email settings.
-  EMAIL_BACKEND: "django.core.mail.backends.console.EmailBackend" # change 'console' to 'smtp' to allow mails to go
-  DEFAULT_FROM_EMAIL: "admin@${KANBAN_HOST}.${DOMAIN}"
-  EMAIL_USE_TLS: "FALSE"
-  EMAIL_USE_SSL: "FALSE"
-  EMAIL_HOST: "${SMTP_HOST}.${DOMAIN}"
-  EMAIL_PORT: "587"
-  EMAIL_HOST_USER: "mailer"
-  EMAIL_HOST_PASSWORD: "${EMAIL_HOST_PASSWORD}"
-  # Rabbitmq settings
-  RABBITMQ_USER: "kanbaner"
-  RABBITMQ_PASS: "${KANBAN_RABBITMQ_PASS}"
-  # Telemetry settings
-  ENABLE_TELEMETRY: FALSE
-  # ...your customizations go here
-
-x-volumes:
-  &default-back-volumes
-  # These volumens will be used by taiga-back and taiga-async.
-  # - taiga-static-data:/taiga-back/static
-  # - taiga-media-data:/taiga-back/media
-  # - ./config.py:/taiga-back/settings/config.py
-  - type: bind
-    source: ~/volumes/kanban/media
-    target: /taiga-back/media
-  - type: bind
-    source: ~/volumes/kanban/static
-    target: /taiga-back/static
-
-
 services:
-  taiga-db:
-    image: postgres:12.3
-    container_name: taiga-db
+  kanban_db:
+    image: mariadb:11
+    container_name: kanban_db
     environment:
-      POSTGRES_DB: "kanban"
-      POSTGRES_USER: "kabaner"
-      POSTGRES_PASSWORD: "${KANBAN_USER_DB}"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U kanbaner"]
-      interval: 2s
-      timeout: 15s
-      retries: 5
-      start_period: 3s      
+      - MYSQL_ROOT_PASSWORD=${KANBAN_ROOT_DB}
+      - MYSQL_USER=kanbaner
+      - MYSQL_PASSWORD=${KANBAN_USER_DB}
+      - MYSQL_DATABASE=kanban
     volumes:
       - type: bind
         source: ~/volumes/kanban/db
-        target: /var/lib/postgresql/data
+        target: /var/lib/mysql
+    restart: unless-stopped
     networks:
-      - kanban
+      - kanban_network
+    command: --character-set-server=UTF8MB4 --collation-server=UTF8MB4_unicode_ci
+    #healthcheck:
+    #  test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+    #  interval: 30s
+    #  timeout: 10s
+    #  retries: 3
 
-  taiga-back:
-    image: taigaio/taiga-back:latest
-    container_name: taiga-back
-    platform: linux/amd64
-    environment: *default-back-environment
-    volumes: *default-back-volumes
-    networks:
-      - kanban
-    depends_on:
-      taiga-db:
-        condition: service_healthy
-      taiga-events-rabbitmq:
-        condition: service_started
-      taiga-async-rabbitmq:
-        condition: service_started
-
-  taiga-async:
-    image: taigaio/taiga-back:latest
-    container_name: taiga-async
-    platform: linux/amd64
-    entrypoint: ["/taiga-back/docker/async_entrypoint.sh"]
-    environment: *default-back-environment
-    volumes: *default-back-volumes
-    networks:
-      - kanban
-    depends_on:
-      taiga-db:
-        condition: service_healthy
-      taiga-events-rabbitmq:
-        condition: service_started
-      taiga-async-rabbitmq:
-        condition: service_started
-
-  taiga-async-rabbitmq:
-    image: rabbitmq:3.8-management-alpine
-    container_name: taiga-async-rabbitmq
+  leantime:
+    image: leantime/leantime:3.4.7
+    restart: unless-stopped
+    # Add security options
+    security_opt:
+      - no-new-privileges:true
+    # Add capabilities
+    cap_add:
+      # - CAP_NET_BIND_SERVICE
+      - CAP_CHOWN
+      - CAP_SETGID
+      - CAP_SETUID
+    #ports:
+    #  - "${LEAN_PORT:-8080}:8080"
     environment:
-      RABBITMQ_ERLANG_COOKIE: "${KANBAN_MQ_COOKIE}"
-      RABBITMQ_DEFAULT_USER: "kanbaner"
-      RABBITMQ_DEFAULT_PASS: "${KANBAN_RABBITMQ_PASS}"
-      RABBITMQ_DEFAULT_VHOST: "taiga"
-    hostname: "taiga-async-rabbitmq"
-    volumes:
-      - type: bind
-        source: ~/volumes/kanban/rabbit-mq
-        target: /var/lib/rabbitmq-async
-    networks:
-      - kanban
+      - PUID=${USER_UID}
+      - PGID=${USER_GID}
+      - LEAN_PORT="80"
+      - LEAN_APP_URL=${PROTOCOL}://${KANBAN_HOST}.${DOMAIN}
+      - LEAN_APP_DIR=""
+      - LEAN_DEBUG=0
+      
+      - LEAN_DB_HOST=kanban_db
+      - LEAN_DB_USER=kanbaner
+      - LEAN_DB_PASSWORD=${KANBAN_USER_DB}
+      - LEAN_DB_DATABASE=kanban
+      - LEAN_DB_PORT=3306
 
-  taiga-front:
-    image: taigaio/taiga-front:latest
-    container_name: taiga-front
-    platform: linux/amd64
-    environment:
-      TAIGA_URL: "${PROTOCOL}://${KANBAN_HOST}.${DOMAIN}"
-      TAIGA_WEBSOCKETS_URL: "${WEBSOCKET_PROTOCOL}://${KANBAN_HOST}.${DOMAIN}"
-      TAIGA_SUBPATH: ""
-      # ...your customizations go here
-    networks:
-      - kanban
-    # volumes:
-    #   - ./conf.json:/usr/share/nginx/html/conf.json
+      - LEAN_SESSION_PASSWORD=±GN9¾þÊYÍËE~ÛºÂÔ^¿spØÛå/yC#qáÄÓ©àAjß¾ùNËZ°Ï_yÀÈm·×ÊÄHÄÜÌÐº18
+      - LEAN_SESSION_EXPIRATION=86400
+      - LEAN_SESSION_SECURE=TRUE
+      
+      - LEAN_SITENAME=Kanban board
+      - LEAN_LANGUAGE=en-US
+      - LEAN_DEFAULT_TIMEZONE=Europe/Warsaw
+      # - LEAN_LOG_PATH=''
+      - LEAN_DISABLE_LOGIN_PATH=FALSE
+      
+      - LEAN_LOGO_PATH=/dist/images/logo.svg
+      - LEAN_PRINT_LOGO_URL=/dist/images/logo.png
+      - LEAN_DEFAULT_THEME=default
+      - LEAN_PRIMARY_COLOR=#006d9f
+      - LEAN_SECONDARY_COLOR=#00a886
 
-  taiga-events:
-    image: taigaio/taiga-events:latest
-    container_name: taiga-events
-    platform: linux/amd64
-    environment:
-      RABBITMQ_USER: "kanbaner"
-      RABBITMQ_PASS: "${KANBAN_RABBITMQ_PASS}"
-      TAIGA_SECRET_KEY: "${KANBAN_SECRET_KEY}"
-    networks:
-      - kanban
-    depends_on:
-      taiga-events-rabbitmq:
-        condition: service_started
+      - LEAN_USER_FILE_PATH=userfiles/
+      - LEAN_DB_BACKUP_PATH=backupdb/
 
-  taiga-events-rabbitmq:
-    image: rabbitmq:3.8-management-alpine
-    container_name: taiga-events-rabbitmq
-    environment:
-      RABBITMQ_ERLANG_COOKIE: "${KANBAN_MQ_COOKIE}"
-      RABBITMQ_DEFAULT_USER: "kanbaner"
-      RABBITMQ_DEFAULT_PASS: "${KANBAN_RABBITMQ_PASS}"
-      RABBITMQ_DEFAULT_VHOST: "taiga"
-    hostname: "taiga-events-rabbitmq"
-    volumes:
-      - type: bind
-        source: ~/volumes/kanban/rabbit-mq
-        target: /var/lib/rabbitmq-events
-    networks:
-      - kanban
+      - LEAN_USE_S3=FALSE
+      # - LEAN_S3_KEY=''
+      # - LEAN_S3_SECRET=''
+      # - LEAN_S3_BUCKET=''
+      # - LEAN_S3_USE_PATH_STYLE_ENDPOINT=false
+      # - LEAN_S3_REGION=''
+      # - LEAN_S3_FOLDER_NAME=''
+      # - LEAN_S3_END_POINT=null
 
-  taiga-protected:
-    image: taigaio/taiga-protected:latest
-    container_name: taiga-protected
-    platform: linux/amd64
-    environment:
-      MAX_AGE: "15724800"
-      SECRET_KEY: "${KANBAN_SECRET_KEY}"
-    networks:
-      - kanban
+## Email
+      - LEAN_EMAIL_RETURN=''
+      - LEAN_EMAIL_USE_SMTP=false
+      - LEAN_EMAIL_SMTP_HOSTS=''
+      - LEAN_EMAIL_SMTP_AUTH=true
+      - LEAN_EMAIL_SMTP_USERNAME=''
+      - LEAN_EMAIL_SMTP_PASSWORD=''
+      - LEAN_EMAIL_SMTP_AUTO_TLS=true
+      - LEAN_EMAIL_SMTP_SECURE=''
+      - LEAN_EMAIL_SMTP_SSLNOVERIFY=false
+      - LEAN_EMAIL_SMTP_PORT=''
 
-  kanban_proxy:
-    image: nginx:1.19-alpine
-    container_name: kanban_proxy
-    ports:
-      - "9000:80"
-    volumes:
-      - ./conf/default.conf:/etc/nginx/conf.d/default.conf
-      - type: bind
-        source: ~/volumes/kanban/media
-        target: /taiga-back/media
-      - type: bind
-        source: ~/volumes/kanban/static
-        target: /taiga-back/static
+## LDAP
+      - LEAN_LDAP_USE_LDAP=true
+      - LEAN_LDAP_LDAP_DOMAIN=${LDAP_HOST}.${DOMAIN}
+      - LEAN_LDAP_LDAP_TYPE=OL
+      - LEAN_LDAP_HOST=ldap
+      - LEAN_LDAP_PORT=3890
+      # - LEAN_LDAP_URI=''
+      - LEAN_LDAP_DN=ou=people,${LDAP_DOMAIN}
+                                                   # Leantime->Ldap attribute mapping
+      - LEAN_LDAP_KEYS="{
+        \"username\":\"uid\",
+        \"groups\":\"memberOf\",
+        \"email\":\"mail\",
+        \"firstname\":\"givenName\",
+        \"lastname\":\"sn\",
+        \"phone\":\"telephoneNumber\",
+        \"jobTitle\":\"title\"
+        \"jobLevel\":\"level\"
+        \"department\":\"department\"
+        }"
+
+      - LEAN_LDAP_DEFAULT_ROLE_KEY=20
+
+# Default role assignments upon first login.
+# optional - Can be updated later in user settings for each user
+      - LEAN_LDAP_GROUP_ASSIGNMENT="{
+          \"5\": {
+                 \"ltRole\":\"readonly\",
+                 \"ldapRole\":\"readonly\"
+               },
+               \"10\": {
+                 \"ltRole\":\"commenter\",
+                  \"ldapRole\":\"commenter\"
+               },
+               \"20\": {
+                 \"ltRole\":\"editor\",
+                  \"ldapRole\":\"editor\"
+               },
+               \"30\": {
+                 \"ltRole\":\"manager\",
+                  \"ldapRole\":\"manager\"
+               },
+               \"40\": {
+                 \"ltRole\":\"admin\",
+                  \"ldapRole\":\"administrators\"
+               },
+               \"50\": {
+                 \"ltRole\":\"owner\",
+                 \"ldapRole\":\"administrators\"
+               }
+          }"
+## Redis (for session storage and cache)
+      # - LEAN_USE_REDIS=false
+      # - LEAN_REDIS_URL=''
+      # - LEAN_REDIS_HOST=''
+      # - LEAN_REDIS_PORT=6379
+      # - LEAN_REDIS_PASSWORD=''
+      # - LEAN_REDIS_SCHEME=''
+
+## Rate limiting
+      - LEAN_RATELIMIT_GENERAL=1000
+      - LEAN_RATELIMIT_API=10
+      - LEAN_RATELIMIT_AUTH=20
 
     networks:
-      - kanban
+      - kanban_network
       - test-bridge
+    volumes:
+      - type: bind
+        source: ~/volumes/kanban/public
+        target: /var/www/html/public/userfiles
+      - type: bind
+        source: ~/volumes/kanban/files
+        target: /var/www/html/userfiles
+      - type: bind
+        source: ~/volumes/kanban/plugins
+        target: /var/www/html/app/Plugins
+      - type: bind
+        source: ~/volumes/kanban/logs
+        target: /var/www/html/storage/logs
+      - public_userfiles:/var/www/html/public/userfiles     # Volume to store public files, logo etc
+      - userfiles:/var/www/html/userfiles                   # Original volume name for compatibility
+      - plugins:/var/www/html/app/Plugins                   # Plugin storage
+      - logs:/var/www/html/storage/logs                     # Log storage
     depends_on:
-      - taiga-front
-      - taiga-back
-      - taiga-events
+      leantime_db:
+        condition: service_healthy
+
+  # Add a helper container for volume permissions
+  # Run via docker compose --profile mysql_helper up -d
+  # mysql_helper:
+  #   image: mysql:8.4
+  #   command: chown -R mysql:mysql /var/lib/mysql
+  #   volumes:
+  #     - db_data:/var/lib/mysql
+  #   user: root
+  #   profiles: [ "helper" ]
+
+# volumes:
+#   db_data:
+#   userfiles:                                               # New volume for public files
+#   public_userfiles:
+#   plugins:
+#   logs:
 
 networks:
   test-bridge:
     external: true
-  kanban:
+  kanban_network:
