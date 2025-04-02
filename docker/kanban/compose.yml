@@ -174,7 +174,7 @@ services:
       - plugins:/var/www/html/app/Plugins                   # Plugin storage
       - logs:/var/www/html/storage/logs                     # Log storage
     depends_on:
-      leantime_db:
+      kanban_db:
         condition: service_healthy
 
   # Add a helper container for volume permissions
