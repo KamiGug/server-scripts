@@ -115,27 +115,27 @@ services:
 # Default role assignments upon first login.
 # optional - Can be updated later in user settings for each user
       - LEAN_LDAP_GROUP_ASSIGNMENT="{
-          \"5\": {
+          \"5\":{
                  \"ltRole\":\"readonly\",
                  \"ldapRole\":\"readonly\"
                },
-               \"10\": {
+               \"10\":{
                  \"ltRole\":\"commenter\",
                   \"ldapRole\":\"commenter\"
                },
-               \"20\": {
+               \"20\":{
                  \"ltRole\":\"editor\",
                   \"ldapRole\":\"editor\"
                },
-               \"30\": {
+               \"30\":{
                  \"ltRole\":\"manager\",
                   \"ldapRole\":\"manager\"
                },
-               \"40\": {
+               \"40\":{
                  \"ltRole\":\"admin\",
                   \"ldapRole\":\"administrators\"
                },
-               \"50\": {
+               \"50\":{
                  \"ltRole\":\"owner\",
                  \"ldapRole\":\"administrators\"
                }
