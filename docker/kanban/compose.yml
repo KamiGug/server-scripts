@@ -23,6 +23,7 @@ services:
 
   kanban:
     image: leantime/leantime:3.4.7
+    container_name: kanban
     restart: unless-stopped
     # Add security options
     security_opt:
