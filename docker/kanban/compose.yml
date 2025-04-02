@@ -44,6 +44,7 @@ x-volumes:
 services:
   taiga-db:
     image: postgres:12.3
+    container_name: taiga-db
     environment:
       POSTGRES_DB: "kanban"
       POSTGRES_USER: "kabaner"
@@ -63,6 +64,8 @@ services:
 
   taiga-back:
     image: taigaio/taiga-back:latest
+    container_name: taiga-back
+    platform: linux/amd64
     environment: *default-back-environment
     volumes: *default-back-volumes
     networks:
@@ -77,6 +80,8 @@ services:
 
   taiga-async:
     image: taigaio/taiga-back:latest
+    container_name: taiga-async
+    platform: linux/amd64
     entrypoint: ["/taiga-back/docker/async_entrypoint.sh"]
     environment: *default-back-environment
     volumes: *default-back-volumes
@@ -92,6 +97,7 @@ services:
 
   taiga-async-rabbitmq:
     image: rabbitmq:3.8-management-alpine
+    container_name: taiga-async-rabbitmq
     environment:
       RABBITMQ_ERLANG_COOKIE: "${KANBAN_MQ_COOKIE}"
       RABBITMQ_DEFAULT_USER: "kanbaner"
@@ -107,6 +113,8 @@ services:
 
   taiga-front:
     image: taigaio/taiga-front:latest
+    container_name: taiga-front
+    platform: linux/amd64
     environment:
       TAIGA_URL: "${PROTOCOL}://${KANBAN_HOST}.${DOMAIN}"
       TAIGA_WEBSOCKETS_URL: "${WEBSOCKET_PROTOCOL}://${KANBAN_HOST}.${DOMAIN}"
@@ -119,6 +127,8 @@ services:
 
   taiga-events:
     image: taigaio/taiga-events:latest
+    container_name: taiga-events
+    platform: linux/amd64
     environment:
       RABBITMQ_USER: "kanbaner"
       RABBITMQ_PASS: "${KANBAN_RABBITMQ_PASS}"
@@ -131,6 +141,7 @@ services:
 
   taiga-events-rabbitmq:
     image: rabbitmq:3.8-management-alpine
+    container_name: taiga-events-rabbitmq
     environment:
       RABBITMQ_ERLANG_COOKIE: "${KANBAN_MQ_COOKIE}"
       RABBITMQ_DEFAULT_USER: "kanbaner"
@@ -146,6 +157,8 @@ services:
 
   taiga-protected:
     image: taigaio/taiga-protected:latest
+    container_name: taiga-protected
+    platform: linux/amd64
     environment:
       MAX_AGE: "15724800"
       SECRET_KEY: "${KANBAN_SECRET_KEY}"
@@ -154,6 +167,7 @@ services:
 
   kanban_proxy:
     image: nginx:1.19-alpine
+    container_name: kanban_proxy
     ports:
       - "9000:80"
     volumes:
