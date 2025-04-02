@@ -169,10 +169,6 @@ services:
       - type: bind
         source: ~/volumes/kanban/logs
         target: /var/www/html/storage/logs
-      - public_userfiles:/var/www/html/public/userfiles     # Volume to store public files, logo etc
-      - userfiles:/var/www/html/userfiles                   # Original volume name for compatibility
-      - plugins:/var/www/html/app/Plugins                   # Plugin storage
-      - logs:/var/www/html/storage/logs                     # Log storage
     depends_on:
       kanban_db:
         condition: service_healthy
