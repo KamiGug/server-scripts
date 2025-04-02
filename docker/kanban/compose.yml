@@ -21,7 +21,7 @@ services:
     #  timeout: 10s
     #  retries: 3
 
-  leantime:
+  kanban:
     image: leantime/leantime:3.4.7
     restart: unless-stopped
     # Add security options
@@ -170,7 +170,7 @@ services:
         source: ~/volumes/kanban/logs
         target: /var/www/html/storage/logs
     depends_on:
-      kanban_db:
+      - kanban_db
         # condition: service_healthy
 
   # Add a helper container for volume permissions
