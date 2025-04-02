@@ -171,7 +171,7 @@ services:
         target: /var/www/html/storage/logs
     depends_on:
       kanban_db:
-        condition: service_healthy
+        # condition: service_healthy
 
   # Add a helper container for volume permissions
   # Run via docker compose --profile mysql_helper up -d
