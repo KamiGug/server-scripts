@@ -39,7 +39,7 @@ services:
     environment:
       - PUID=${USER_UID}
       - PGID=${USER_GID}
-      - LEAN_PORT="80"
+      - LEAN_PORT="8080"
       - LEAN_APP_URL=${PROTOCOL}://${KANBAN_HOST}.${DOMAIN}
       - LEAN_APP_DIR=""
       - LEAN_DEBUG=0
@@ -50,7 +50,7 @@ services:
       - LEAN_DB_DATABASE=kanban
       - LEAN_DB_PORT=3306
 
-      - LEAN_SESSION_PASSWORD=±GN9¾þÊYÍËE~ÛºÂÔ^¿spØÛå/yC#qáÄÓ©àAjß¾ùNËZ°Ï_yÀÈm·×ÊÄHÄÜÌÐº18
+      - LEAN_SESSION_PASSWORD=${KANBAN_SECRET_KEY}
       - LEAN_SESSION_EXPIRATION=86400
       - LEAN_SESSION_SECURE=TRUE
       
@@ -99,48 +99,53 @@ services:
       # - LEAN_LDAP_URI=''
       - LEAN_LDAP_DN=ou=people,${LDAP_DOMAIN}
                                                    # Leantime->Ldap attribute mapping
-      - LEAN_LDAP_KEYS="{
-        \"username\":\"uid\",
-        \"groups\":\"memberOf\",
-        \"email\":\"mail\",
-        \"firstname\":\"givenName\",
-        \"lastname\":\"sn\",
-        \"phone\":\"telephoneNumber\",
-        \"jobTitle\":\"title\"
-        \"jobLevel\":\"level\"
-        \"department\":\"department\"
-        }"
+      - LEAN_LDAP_KEYS={"username":"uid", "groups":"memberOf", "email":"mail", "firstname":"givenName", "lastname":"sn", "phone":"telephoneNumber", "jobTitle":"title", "jobLevel":"level", "department":"department" }
 
-      - LEAN_LDAP_DEFAULT_ROLE_KEY=20
+      - LEAN_LDAP_DEFAULT_ROLE_KEY=0
 
 # Default role assignments upon first login.
 # optional - Can be updated later in user settings for each user
-      - LEAN_LDAP_GROUP_ASSIGNMENT="{
-          \"5\":{
-                 \"ltRole\":\"readonly\",
-                 \"ldapRole\":\"readonly\"
-               },
-               \"10\":{
-                 \"ltRole\":\"commenter\",
-                  \"ldapRole\":\"commenter\"
-               },
-               \"20\":{
-                 \"ltRole\":\"editor\",
-                  \"ldapRole\":\"editor\"
-               },
-               \"30\":{
-                 \"ltRole\":\"manager\",
-                  \"ldapRole\":\"manager\"
-               },
-               \"40\":{
-                 \"ltRole\":\"admin\",
-                  \"ldapRole\":\"administrators\"
-               },
-               \"50\":{
-                 \"ltRole\":\"owner\",
-                 \"ldapRole\":\"administrators\"
-               }
-          }"
+      - LEAN_LDAP_GROUP_ASSIGNMENT={ \
+          "5":{ \
+                 "ltRole":"readonly", \
+                 "ldapRole":"${KANBAN_READONLY}" \
+               }, \
+               "20":{ \
+                 "ltRole":"editor", \
+                  "ldapRole":"${KANBAN_USER}" \
+               }, \
+               "40":{ \
+                 "ltRole":"admin", \
+                  "ldapRole":"${KANBAN_ADMIN}" \
+               }, \
+          }
+        # - LEAN_LDAP_GROUP_ASSIGNMENT={ \
+        #   "5":{ \
+        #          "ltRole":"readonly", \
+        #          "ldapRole":"kanban_readonly" \
+        #        }, \
+        #        "10":{ \
+        #          "ltRole":"commenter", \
+        #           "ldapRole":"commenter" \
+        #        }, \
+        #        "20":{ \
+        #          "ltRole":"editor", \
+        #           "ldapRole":"editor" \
+        #        }, \
+        #        "30":{ \
+        #          "ltRole":"manager", \
+        #           "ldapRole":"manager" \
+        #        }, \
+        #        "40":{ \
+        #          "ltRole":"admin", \
+        #           "ldapRole":"administrators" \
+        #        }, \
+        #        "50":{ \
+        #          "ltRole":"owner", \
+        #          "ldapRole":"administrators" \
+        #        } \
+        #   }
+
 ## Redis (for session storage and cache)
       # - LEAN_USE_REDIS=false
       # - LEAN_REDIS_URL=''
