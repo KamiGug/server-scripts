@@ -99,52 +99,52 @@ services:
       # - LEAN_LDAP_URI=''
       - LEAN_LDAP_DN=ou=people,${LDAP_DOMAIN}
                                                    # Leantime->Ldap attribute mapping
-      - LEAN_LDAP_KEYS={"username":"uid", "groups":"memberOf", "email":"mail", "firstname":"givenName", "lastname":"sn", "phone":"telephoneNumber", "jobTitle":"title", "jobLevel":"level", "department":"department" }
+      - LEAN_LDAP_KEYS={"username":"uid", "groups":"memberof", "email":"mail", "firstname":"givenname", "lastname":"sn", "phone":"telephoneNumber", "jobTitle":"title", "jobLevel":"level", "department":"department" }
 
       - LEAN_LDAP_DEFAULT_ROLE_KEY=0
 
 # Default role assignments upon first login.
 # optional - Can be updated later in user settings for each user
+      # - LEAN_LDAP_GROUP_ASSIGNMENT={ \
+      #     "5":{ \
+      #            "ltRole":"readonly", \
+      #            "ldapRole":"${KANBAN_READONLY}" \
+      #          }, \
+      #          "20":{ \
+      #            "ltRole":"editor", \
+      #             "ldapRole":"${KANBAN_USER}" \
+      #          }, \
+      #          "40":{ \
+      #            "ltRole":"admin", \
+      #             "ldapRole":"${KANBAN_ADMIN}" \
+      #          }, \
+      #     }
       - LEAN_LDAP_GROUP_ASSIGNMENT={ \
           "5":{ \
                  "ltRole":"readonly", \
-                 "ldapRole":"${KANBAN_READONLY}" \
+                 "ldapRole":"kanban_readonly" \
+               }, \
+               "10":{ \
+                 "ltRole":"commenter", \
+                  "ldapRole":"kanban_commenter" \
                }, \
                "20":{ \
                  "ltRole":"editor", \
-                  "ldapRole":"${KANBAN_USER}" \
+                  "ldapRole":"kanban_editor" \
+               }, \
+               "30":{ \
+                 "ltRole":"manager", \
+                  "ldapRole":"kanban_manager" \
                }, \
                "40":{ \
                  "ltRole":"admin", \
-                  "ldapRole":"${KANBAN_ADMIN}" \
+                  "ldapRole":"kanban_admin" \
                }, \
+               "50":{ \
+                 "ltRole":"owner", \
+                 "ldapRole":"kanban_super_admin" \
+               } \
           }
-        # - LEAN_LDAP_GROUP_ASSIGNMENT={ \
-        #   "5":{ \
-        #          "ltRole":"readonly", \
-        #          "ldapRole":"kanban_readonly" \
-        #        }, \
-        #        "10":{ \
-        #          "ltRole":"commenter", \
-        #           "ldapRole":"commenter" \
-        #        }, \
-        #        "20":{ \
-        #          "ltRole":"editor", \
-        #           "ldapRole":"editor" \
-        #        }, \
-        #        "30":{ \
-        #          "ltRole":"manager", \
-        #           "ldapRole":"manager" \
-        #        }, \
-        #        "40":{ \
-        #          "ltRole":"admin", \
-        #           "ldapRole":"administrators" \
-        #        }, \
-        #        "50":{ \
-        #          "ltRole":"owner", \
-        #          "ldapRole":"administrators" \
-        #        } \
-        #   }
 
 ## Redis (for session storage and cache)
       # - LEAN_USE_REDIS=false
