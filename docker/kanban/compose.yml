@@ -119,32 +119,7 @@ services:
       #             "ldapRole":"${KANBAN_ADMIN}" \
       #          }, \
       #     }
-      - LEAN_LDAP_GROUP_ASSIGNMENT={ \
-          "5":{ \
-                 "ltRole":"readonly", \
-                 "ldapRole":"kanban_readonly" \
-               }, \
-               "10":{ \
-                 "ltRole":"commenter", \
-                  "ldapRole":"kanban_commenter" \
-               }, \
-               "20":{ \
-                 "ltRole":"editor", \
-                  "ldapRole":"kanban_editor" \
-               }, \
-               "30":{ \
-                 "ltRole":"manager", \
-                  "ldapRole":"kanban_manager" \
-               }, \
-               "40":{ \
-                 "ltRole":"admin", \
-                  "ldapRole":"kanban_admin" \
-               }, \
-               "50":{ \
-                 "ltRole":"owner", \
-                 "ldapRole":"kanban_super_admin" \
-               } \
-          }
+      - LEAN_LDAP_GROUP_ASSIGNMENT={ "5":{"ltRole":"readonly", "ldapRole":"kanban_readonly" }, "10":{ "ltRole":"commenter", "ldapRole":"kanban_commenter" }, "20":{ "ltRole":"editor", "ldapRole":"kanban_editor" }, "30":{ "ltRole":"manager", "ldapRole":"kanban_manager" }, "40":{ "ltRole":"admin", "ldapRole":"kanban_admin" }, "50":{ "ltRole":"owner", "ldapRole":"kanban_super_admin" } }
 
 ## Redis (for session storage and cache)
       # - LEAN_USE_REDIS=false
