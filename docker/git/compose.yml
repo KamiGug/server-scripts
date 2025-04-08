@@ -29,6 +29,7 @@ services:
       - FORGEJO__service__ALLOWED_USER_VISIBILITY_MODES=limited
       - FORGEJO__service__DEFAULT_ORG_VISIBILITY=limited
       - FORGEJO__service__DEFAULT_ORG_MEMBER_VISIBLE=true
+      - FORGEJO__repository__DEFAULT_BRANCH=master
       - LDAP_DOMAIN=ldap://ldap
       - LDAP_BIND_DN=${LDAP_DOMAIN}
       - LDAP_PASS=${LDAP_PASS}
