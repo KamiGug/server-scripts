@@ -11,7 +11,8 @@ services:
     #     - LDAP_PASS=${LDAP_PASS}
     container_name: fileshare
     restart: always
-    user: "${USER_UID}:${USER_GID}"
+    # user: "${USER_UID}:${USER_GID}" # for rootful docker installation
+    user: "root" # for rootless docker installation
     environment:
 #      - PUID=${USER_UID}
 #      - PGID=${USER_GID}
