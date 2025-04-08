@@ -4,49 +4,41 @@ services:
       - test-bridge
       - fileshare-network
     image: nextcloud:31
-#    build:
-#      context: fileshare
-#      args:
-#        - LDAP_DOMAIN=${LDAP_DOMAIN}
-#        - LDAP_PASS=${LDAP_PASS}
+    # build:
+    #   context: fileshare
+    #   args:
+    #     - LDAP_DOMAIN=${LDAP_DOMAIN}
+    #     - LDAP_PASS=${LDAP_PASS}
     container_name: fileshare
     restart: always
-    ports:
-      - "8888:80"
+    user: "${USER_UID}:${USER_GID}"
     environment:
 #      - PUID=${USER_UID}
 #      - PGID=${USER_GID}
       - NEXTCLOUD_ADMIN_USER=admin
       - NEXTCLOUD_ADMIN_PASSWORD=${FILESHARE_ADMIN_PASSWORD}
       - NEXTCLOUD_TRUSTED_DOMAINS=${FILESHARE_HOST}.${DOMAIN}
-      # - NEXTCLOUD_DB_HOST=fileshare_db
       - MYSQL_HOST=fileshare_db
       - MYSQL_USER=clouder
       - MYSQL_PASSWORD=${FILESHARE_USER_DB}
       - MYSQL_DATABASE=nextcloud
 #      - PHP_MEMORY_LIMIT=2048M
     volumes:
-      - fileshare-data:/var/www/html/data
-      - fileshare-apps:/var/www/html/apps
-      - fileshare-custom-apps:/var/www/html/custom-apps
-      - fileshare-config:/var/www/html/config
-      - fileshare-application:/var/www/html
-
-#      - type: bind
-#        source: ~/volumes/fileshare/data
-#        target: /var/www/html/data
-#      - type: bind
-#        source: ~/volumes/fileshare/apps
-#        target: /var/www/html/apps
-#      - type: bind
-#        source: ~/volumes/fileshare/custom-apps
-#        target: /var/www/html/custom-apps
-#      - type: bind
-#        source: ~/volumes/fileshare/config
-#        target: /var/www/html/config
-#      - type: bind
-#        source: ~/volumes/fileshare/application
-#        target: /var/www/html
+      - type: bind
+        source: ~/volumes/fileshare/data
+        target: /var/www/html/data
+      - type: bind
+        source: ~/volumes/fileshare/apps
+        target: /var/www/html/apps
+      - type: bind
+        source: ~/volumes/fileshare/custom-apps
+        target: /var/www/html/custom_apps
+      - type: bind
+        source: ~/volumes/fileshare/config
+        target: /var/www/html/config
+      - type: bind
+        source: ~/volumes/fileshare/application
+        target: /var/www/html
 
       # - type: bind
 #     #   source: ~/volumes/#fileshare/hooks/pre-installation
@@ -65,16 +57,7 @@ services:
       #   target: /docker-entrypoint-hooks.d/before-starting
 
 
-
-
-
         #add hooks!
-    # volumes:
-      # - ./app-hooks/pre-installation:/docker-entrypoint-hooks.d/pre-installation
-      # - ./app-hooks/post-installation:/docker-entrypoint-hooks.d/post-installation
-      # - ./app-hooks/pre-upgrade:/docker-entrypoint-hooks.d/pre-upgrade
-      # - ./app-hooks/post-upgrade:/docker-entrypoint-hooks.d/post-upgrade
-      # - ./app-hooks/before-starting:/docker-entrypoint-hooks.d/before-starting
 
     depends_on:
       - fileshare_db
@@ -84,6 +67,7 @@ services:
       - fileshare-network
     image: mariadb:11
     restart: always
+    container_name: fileshare_db
     environment:
       - MYSQL_ROOT_PASSWORD=${FILESHARE_ROOT_DB}
       - MYSQL_DATABASE=nextcloud
@@ -102,15 +86,3 @@ networks:
     external: true
   fileshare-network:
     driver: bridge
-volumes:
-  fileshare-data:
-    name: "fileshare-data"
-  fileshare-apps:
-    name: "fileshare-apps"
-  fileshare-custom-apps:
-    name: "fileshare-custom-apps"
-  fileshare-config: 
-    name: "fileshare-config"
-  fileshare-application:
-    name: "fileshare-application"
- 
